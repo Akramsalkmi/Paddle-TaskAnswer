@@ -1,0 +1,66 @@
+import json
+from datetime import datetime
+
+
+# Load transactions from the JSON file
+def load_transactions(json_file_path):
+    with open(json_file_path, 'r') as f:
+        data = json.load(f)
+    return data['transactions']
+
+# 1. How many transactions do we have?
+def count_transactions(transactions):
+    return len(transactions)
+
+# 2. What is the total amount of money that is past due per year?
+def total_past_due_amount_per_year(transactions):
+    mydatelist = []
+    amountperyear = {}
+    totalrecords= count_transactions(transactions)
+    for i in range(totalrecords):
+        mydatelist.append(
+            datetime.strptime(transactions[i]['date'], "%Y-%m-%d").year)
+# print(mydatelist[i])
+
+    mydatalist = list(set(mydatelist))
+
+    
+    for j in range(len(mydatalist)):
+        amountperyear[mydatalist[j]] = 0
+
+#print(amountperyear)
+    for i in range(totalrecords):
+        if transactions[i]['status'] == 'past_due':
+            amountperyear[datetime.strptime(
+                transactions[i]['date'],
+                "%Y-%m-%d").year] += transactions[i]['amount']
+
+    return(amountperyear)
+def transaction_status_breakdown(transactions):
+    past_due = 0
+    cancelled = 0
+    paid = 0
+    totalrecords=count_transactions(transactions)
+    for i in range(totalrecords):
+        if transactions[i]['status'] == 'past_due':
+            past_due += 1
+        elif transactions[i]['status'] == 'paid':
+            paid += 1
+        else:
+            cancelled += 1
+
+    print("Transactions Status Breakdown by Amount:")
+    print(f"Past Due:{past_due/totalrecords%100}")
+    print(f"Cancelled:{cancelled/totalrecords%100}")
+    print(f"Paid:{paid/totalrecords%100}")
+
+# Main script
+if __name__ == "__main__":
+    transactions=load_transactions('transactions.json')
+    total_transactions = count_transactions(transactions)
+    print(f"Total Transactions: {total_transactions}")
+    past_due_amounts_per_year = total_past_due_amount_per_year(transactions)
+    print(f"Total Past Due Amounts per Year: {past_due_amounts_per_year}")
+    transaction_status_breakdown(transactions)
+
+
